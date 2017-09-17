@@ -1,5 +1,10 @@
 // from https://codepen.io/AshKyd/pen/JKGVmY
 
+var CANVAS_WIDTH = 800
+var CANVAS_HEIGHT = 800
+
+var blockSize = 20
+
 var canvas = document.getElementById('canvas')
 var context = canvas.getContext('2d')
 
@@ -48,7 +53,54 @@ function drawCube (x, y, wx, wy, h, color) {
   context.fill()
 }
 
-drawCube(200, 200, 40, 40, 40, '#bbbbbb')
-drawCube(240, 220, 40, 40, 40, '#bbbbbb')
-drawCube(40, 80, 40, 40, 40, '#cccccc')
+function drawOutline (x, y, wx, wy, h, color) {
+  context.beginPath()
+  context.moveTo(x, y)
+  context.lineTo(x - wx, y - wx * 0.5)
+  context.lineTo(x - wx, y - h - wx * 0.5)
+  context.lineTo(x - wx + wy, y - h - (wx * 0.5 + wy * 0.5))
+  context.lineTo(x + wy, y - h - wy * 0.5)
+  context.lineTo(x + wy, y - wy * 0.5)
+  context.closePath()
+
+  context.moveTo(x - wx, y - wx * 0.5)
+  context.lineTo(x + wy, y - h - wy * 0.5)
+
+  context.moveTo(x, y)
+  context.lineTo(x - wx + wy, y - h - (wx * 0.5 + wy * 0.5))
+
+  context.moveTo(x - wx, y - h - wx * 0.5)
+  context.lineTo(x + wy, y - wy * 0.5)
+
+  context.strokeStyle = color
+  context.stroke()
+}
+
+function drawGrid (y) {
+  context.beginPath
+  context.moveTo(CANVAS_WIDTH / 2, CANVAS_HEIGHT - blockSize)
+  context.lineTo(0 + blockSize, CANVAS_HEIGHT * 0.75 - blockSize)
+  context.lineTo(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - blockSize)
+  context.lineTo(CANVAS_WIDTH - blockSize, CANVAS_HEIGHT * 0.75 - blockSize)
+  context.closePath()
+
+  //for (var i = 0; i < )
+
+  context.strokeStyle = '#acf'
+  context.stroke()
+}
+
+drawGrid(0)
+
+drawCube(200, 200, 20, 20, 20, '#bbbbbb')
+drawCube(260, 230, 20, 20, 20, '#bbbbbb')
+drawCube(260, 230, 20, 20, 20, '#bbbbbb')
+
+drawCube(500, 540, 20, 20, 20, '#cccccc')
+drawCube(500, 520, 20, 20, 20, '#cccccc')
+drawCube(520, 490, 20, 20, 20, '#cccccc')
+drawCube(400, 780, 20, 20, 20, '#cccccc')
+
+
+drawOutline(500, 500, 20, 20, 20, '#aaccff')
 
