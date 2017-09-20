@@ -77,14 +77,24 @@ function drawOutline (x, y, wx, wy, h, color) {
 }
 
 function drawGrid (y) {
+  /*
   context.beginPath
   context.moveTo(CANVAS_WIDTH / 2, CANVAS_HEIGHT - blockSize)
-  context.lineTo(0 + blockSize, CANVAS_HEIGHT * 0.75 - blockSize)
-  context.lineTo(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - blockSize)
-  context.lineTo(CANVAS_WIDTH - blockSize, CANVAS_HEIGHT * 0.75 - blockSize)
+  context.lineTo(20, CANVAS_HEIGHT * 0.75 - blockSize + 10)
+  context.lineTo(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - blockSize + 10)
+  context.lineTo(CANVAS_WIDTH - blockSize, CANVAS_HEIGHT * 0.75 - 20)
   context.closePath()
+  context.fillStyle = 'rgba(200, 225, 255, 0.35)'
+  context.fill()
+  */
 
-  //for (var i = 0; i < )
+  for (var i = 0; i < 20; i++) {
+    context.moveTo(CANVAS_WIDTH / 2 - 20 * i, CANVAS_HEIGHT - 10 * (i + 2))
+    context.lineTo(CANVAS_WIDTH - 20 * (i + 1), CANVAS_HEIGHT * 0.75 - 10 * (i + 1))
+
+    context.moveTo(CANVAS_WIDTH / 2 + 20 * i, CANVAS_HEIGHT - 10 * (i + 2))
+    context.lineTo(20 * (i + 1), CANVAS_HEIGHT * 0.75 - 10 * (i + 1))
+  }
 
   context.strokeStyle = '#acf'
   context.stroke()
@@ -100,7 +110,6 @@ drawCube(500, 540, 20, 20, 20, '#cccccc')
 drawCube(500, 520, 20, 20, 20, '#cccccc')
 drawCube(520, 490, 20, 20, 20, '#cccccc')
 drawCube(400, 780, 20, 20, 20, '#cccccc')
-
 
 drawOutline(500, 500, 20, 20, 20, '#aaccff')
 
