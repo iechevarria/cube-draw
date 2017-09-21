@@ -109,26 +109,22 @@ function draw () {
   context.font = '14px Courier'
   context.fillText(mouseLoc[0].toString(), 25, 30)
   context.fillText(mouseLoc[1].toString(), 25, 50)
-
   drawGrid(0)
-
-  if (mouseLoc[1] - mouseLoc[0] * 0.5 > 200 &&
-      mouseLoc[1] - mouseLoc[0] * 0.5 < 600 &&
-      mouseLoc[0] * 0.5 + mouseLoc[1] > 600 &&
-      mouseLoc[0] * 0.5 + mouseLoc[1] < 1000) {
+  if (mouseLoc[0] >= 0 && mouseLoc[0] < 20 &&
+      mouseLoc[1] >= 0 && mouseLoc[1] < 20) {
     if (drawMode === 'draw') {
-      drawCube(mouseLoc[0], mouseLoc[1] + 10, 20, 20, 20, '#aaaaaa')
-      drawOutline(mouseLoc[0], mouseLoc[1] + 10, 20, 20, 20, '#4f4')
+      drawCube(mouseLoc[0], mouseLoc[1], 20, 20, 20, '#aaaaaa')
+      drawOutline(mouseLoc[0], mouseLoc[1], 20, 20, 20, '#4f4')
     } else {
-      drawOutline(mouseLoc[0], mouseLoc[1] + 10, 20, 20, 20, '#f44')
+      drawOutline((mouseLoc[0] * 2 + mouseLoc[1]) * 20, 400 - (mouseLoc[0] * 2 + mouseLoc[1]) * 10, 20, 20, 20, '#f44')
     }
   }
 }
 
 function setCursor (e) {
-  mouseLoc[0] = e.offsetX
-  mouseLoc[1] = e.offsetY
-  draw(e)
+  mouseLoc[0] = Math.floor((e.offsetX * 0.5 + e.offsetY) / 20) - 30
+  mouseLoc[1] = -(Math.floor((e.offsetY - e.offsetX * 0.5) / 20) - 29)
+  draw()
 }
 
 canvas.addEventListener('mousemove', setCursor)
