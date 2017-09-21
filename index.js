@@ -9,6 +9,8 @@ var mouseLoc = [-1, -1]
 var canvas = document.getElementById('canvas')
 var context = canvas.getContext('2d')
 
+var drawMode = 'erase'
+
 function shadeColor (color, percent) {
   color = color.substr(1)
   var num = parseInt(color, 16),
@@ -78,12 +80,21 @@ function drawOutline (x, y, wx, wy, h, color) {
 }
 
 function drawGrid (y) {
-  for (var i = 0; i < 20; i++) {
+  for (var i = 0; i < 21; i++) {
+    context.moveTo(CANVAS_WIDTH / 2 - 20 * i, CANVAS_HEIGHT - 10 * (2 * y + i))
+    context.lineTo(CANVAS_WIDTH - 20 * i, CANVAS_HEIGHT * 0.75 - 10 * (2 * y + i))
+
+    context.moveTo(CANVAS_WIDTH / 2 + 20 * i, CANVAS_HEIGHT - 10 * (2 * y + i))
+    context.lineTo(20 * i, CANVAS_HEIGHT * 0.75 - 10 * (2 * y + i))
+
+    /*
     context.moveTo(CANVAS_WIDTH / 2 - 20 * i, CANVAS_HEIGHT - 10 * (2 * y + i + 2))
     context.lineTo(CANVAS_WIDTH - 20 * (i + 1), CANVAS_HEIGHT * 0.75 - 10 * (2 * y + i + 1))
 
     context.moveTo(CANVAS_WIDTH / 2 + 20 * i, CANVAS_HEIGHT - 10 * (2 * y + i + 2))
     context.lineTo(20 * (i + 1), CANVAS_HEIGHT * 0.75 - 10 * (2 * y + i + 1))
+
+    */
   }
 
   context.strokeStyle = '#aaa'
@@ -94,14 +105,30 @@ function draw () {
   context.beginPath()
   context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
 
+  context.fillStyle = '#fff'
+  context.font = '14px Courier'
+  context.fillText(mouseLoc[0].toString(), 25, 30)
+  context.fillText(mouseLoc[1].toString(), 25, 50)
+
   drawGrid(0)
-  drawOutline(mouseLoc[0], mouseLoc[1], 20, 20, 20, '#4f4')
+
+  if (mouseLoc[1] - mouseLoc[0] * 0.5 > 200 &&
+      mouseLoc[1] - mouseLoc[0] * 0.5 < 600 &&
+      mouseLoc[0] * 0.5 + mouseLoc[1] > 600 &&
+      mouseLoc[0] * 0.5 + mouseLoc[1] < 1000) {
+    if (drawMode === 'draw') {
+      drawCube(mouseLoc[0], mouseLoc[1] + 10, 20, 20, 20, '#aaaaaa')
+      drawOutline(mouseLoc[0], mouseLoc[1] + 10, 20, 20, 20, '#4f4')
+    } else {
+      drawOutline(mouseLoc[0], mouseLoc[1] + 10, 20, 20, 20, '#f44')
+    }
+  }
 }
 
 function setCursor (e) {
   mouseLoc[0] = e.offsetX
   mouseLoc[1] = e.offsetY
-  draw()
+  draw(e)
 }
 
 canvas.addEventListener('mousemove', setCursor)
