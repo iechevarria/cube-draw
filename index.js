@@ -3,13 +3,12 @@
 var CANVAS_WIDTH = 800
 var CANVAS_HEIGHT = 800
 
-var blockSize = 20
 var mouseLoc = [-1, -1]
 
 var canvas = document.getElementById('canvas')
 var context = canvas.getContext('2d')
 
-var drawMode = 'erase'
+var cursorMode = 'draw'
 
 function shadeColor (color, percent) {
   color = color.substr(1)
@@ -86,19 +85,40 @@ function drawGrid (y) {
 
     context.moveTo(CANVAS_WIDTH / 2 + 20 * i, CANVAS_HEIGHT - 10 * (2 * y + i))
     context.lineTo(20 * i, CANVAS_HEIGHT * 0.75 - 10 * (2 * y + i))
-
-    /*
-    context.moveTo(CANVAS_WIDTH / 2 - 20 * i, CANVAS_HEIGHT - 10 * (2 * y + i + 2))
-    context.lineTo(CANVAS_WIDTH - 20 * (i + 1), CANVAS_HEIGHT * 0.75 - 10 * (2 * y + i + 1))
-
-    context.moveTo(CANVAS_WIDTH / 2 + 20 * i, CANVAS_HEIGHT - 10 * (2 * y + i + 2))
-    context.lineTo(20 * (i + 1), CANVAS_HEIGHT * 0.75 - 10 * (2 * y + i + 1))
-
-    */
   }
 
   context.strokeStyle = '#aaa'
   context.stroke()
+}
+
+var board = {
+  arrContents: new Array(20),
+
+  fill: function (i, j) {
+    this.arrContents[i][j] = 1
+  },
+
+  erase: function (i, j) {
+    this.arrContents[i][j] = 0
+  },
+
+  reset: function () {
+    for (var i = 0; i < 20; i++) {
+      this.arrContents[i] = new Array(20)
+      for (var j = 0; j < 20; j++) {
+        this.arrContents[i][j] = 0
+      }
+    }
+  }
+}
+
+function drawCursor () {
+  if (cursorMode === 'draw') {
+    drawCube((mouseLoc[0] + mouseLoc[1] + 1) * 20, 600 + (mouseLoc[0] - mouseLoc[1] + 1) * 10, 20, 20, 20, '#aaaaaa')
+    drawOutline((mouseLoc[0] + mouseLoc[1] + 1) * 20, 600 + (mouseLoc[0] - mouseLoc[1] + 1) * 10, 20, 20, 20, '#0f0')
+  } else {
+    drawOutline((mouseLoc[0] + mouseLoc[1] + 1) * 20, 600 + (mouseLoc[0] - mouseLoc[1] + 1) * 10, 20, 20, 20, '#f00')
+  }
 }
 
 function draw () {
@@ -107,26 +127,42 @@ function draw () {
 
   context.fillStyle = '#fff'
   context.font = '14px Courier'
-  context.fillText(mouseLoc[0].toString(), 25, 30)
-  context.fillText(mouseLoc[1].toString(), 25, 50)
+  context.fillText('x: ' + mouseLoc[0].toString(), 25, 30)
+  context.fillText('y: ' + mouseLoc[1].toString(), 25, 50)
   drawGrid(0)
-  if (mouseLoc[0] >= 0 && mouseLoc[0] < 20 &&
-      mouseLoc[1] >= 0 && mouseLoc[1] < 20) {
-    if (drawMode === 'draw') {
-      drawCube(mouseLoc[0], mouseLoc[1], 20, 20, 20, '#aaaaaa')
-      drawOutline(mouseLoc[0], mouseLoc[1], 20, 20, 20, '#4f4')
-    } else {
-      drawOutline((mouseLoc[0] * 2 + mouseLoc[1]) * 20, 400 - (mouseLoc[0] * 2 + mouseLoc[1]) * 10, 20, 20, 20, '#f44')
+
+  for (var i = 0; i < 20; i++) {
+    for (var j = 19; j >= 0; j--) {
+      if (board.arrContents[i][j] === 1) {
+        drawCube((i + j + 1) * 20, 600 + (i - j + 1) * 10, 20, 20, 20, '#aaaaaa')
+      }
+      if (i === mouseLoc[0] && j === mouseLoc[1]) {
+        drawCursor()
+      }
     }
   }
 }
 
 function setCursor (e) {
-  mouseLoc[0] = Math.floor((e.offsetX * 0.5 + e.offsetY) / 20) - 30
-  mouseLoc[1] = -(Math.floor((e.offsetY - e.offsetX * 0.5) / 20) - 29)
-  draw()
+  if (Math.floor((e.offsetX * 0.5 + e.offsetY) / 20) - 30 !== mouseLoc[0] ||
+      -(Math.floor((e.offsetY - e.offsetX * 0.5) / 20) - 29) !== mouseLoc[1]) {
+    mouseLoc[0] = Math.floor((e.offsetX * 0.5 + e.offsetY) / 20) - 30
+    mouseLoc[1] = -(Math.floor((e.offsetY - e.offsetX * 0.5) / 20) - 29)
+    draw()
+  }
 }
 
-canvas.addEventListener('mousemove', setCursor)
+function handleClick () {
+  if (cursorMode === 'draw') {
+    board.fill(mouseLoc[0], mouseLoc[1])
+    draw()
+  }
+  //} else if (drawMode === 'erase') {
+  //  board.arrContents[mouseLoc[0]][mouseLoc[1]] = 0
+  //}
+}
 
+board.reset()
+canvas.addEventListener('mousemove', setCursor)
+canvas.addEventListener('mousedown', handleClick)
 draw()
