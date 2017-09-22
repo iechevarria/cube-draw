@@ -7,6 +7,7 @@ var mouseLoc = [-1, -1]
 var cursorMode = 'draw'
 var renderMode = 'draw'
 var elevation = 0
+var renderAbove = true
 
 var canvas = document.getElementById('canvas')
 var context = canvas.getContext('2d')
@@ -82,6 +83,17 @@ function drawOutline (x, y, wx, wy, h, color, fill) {
   context.stroke()
 }
 
+function drawShadow (x, y, fill) {
+  context.moveTo(x, y)
+  context.lineTo(x - 20, y - 10)
+  context.lineTo(x, y - 20)
+  context.lineTo(x + 20, y - 10)
+  context.closePath()
+
+  context.fillStyle = fill
+  context.fill()
+}
+
 function drawGrid (y) {
   context.beginPath()
   context.moveTo(0, 800)
@@ -91,7 +103,7 @@ function drawGrid (y) {
   context.lineTo(0, CANVAS_HEIGHT * 0.75 - 20 * y)
   context.closePath()
 
-  context.fillStyle = 'rgba(0, 0, 0, 0.25)'
+  context.fillStyle = 'rgba(0, 0, 0, 0.4)'
   context.fill()
 
   context.beginPath()
@@ -135,6 +147,7 @@ var board = {
 function drawCursor () {
   if (cursorMode === 'draw') {
     drawOutline((mouseLoc[0] + mouseLoc[1] + 1) * 20, 600 + (mouseLoc[0] - mouseLoc[1] + 1 - 2 * elevation) * 10, 20, 20, 20, '#0f0', 'rgba(68, 170, 68, 0.5)')
+    drawShadow((mouseLoc[0] + mouseLoc[1] + 1) * 20, 600 + (mouseLoc[0] - mouseLoc[1] + 1) * 10)
   } else {
     drawOutline((mouseLoc[0] + mouseLoc[1] + 1) * 20, 600 + (mouseLoc[0] - mouseLoc[1] + 1 - 2 * elevation) * 10, 20, 20, 20, '#f00', 'rgba(170, 68, 68, 0.5)')
   }
@@ -150,14 +163,17 @@ function draw () {
   context.fillText('y: ' + mouseLoc[1].toString(), 25, 50)
 
   if (renderMode === 'draw') {
-    for (var y = 0; y <= elevation; y++) {
+    drawGrid(0)
+    for (var y = 0; y <= 20; y++) {
       if (y === elevation) {
         drawGrid(elevation)
       }
       for (var i = 0; i < 20; i++) {
         for (var j = 19; j >= 0; j--) {
-          if (board.arrContents[i][j][y] === 1) {
+          if (board.arrContents[i][j][y] === 1 && y <= elevation) {
             drawCube((i + j + 1) * 20, 600 + (i - j + 1) * 10 - 20 * y, 20, 20, 20, '#aaaaaa')
+          } else if (board.arrContents[i][j][y] === 1 && y > elevation && renderAbove === true) {
+            drawOutline((i + j + 1) * 20, 600 + (i - j + 1 - 2 * y) * 10, 20, 20, 20, '#aaa', 'rgba(170, 170, 170, 0.5)')
           }
           if (y === elevation && i === mouseLoc[0] && j === mouseLoc[1]) {
             drawCursor()
