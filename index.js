@@ -5,6 +5,7 @@ var CANVAS_HEIGHT = 800
 
 var mouseLoc = [-1, -1]
 var cursorMode = 'draw'
+var renderMode = 'draw'
 var elevation = 0
 
 var canvas = document.getElementById('canvas')
@@ -110,19 +111,22 @@ function drawGrid (y) {
 var board = {
   arrContents: new Array(20),
 
-  fill: function (i, j) {
-    this.arrContents[i][j] = 1
+  fill: function (i, j, k) {
+    this.arrContents[i][j][k] = 1
   },
 
-  erase: function (i, j) {
-    this.arrContents[i][j] = 0
+  erase: function (i, j, k) {
+    this.arrContents[i][j][k] = 0
   },
 
   reset: function () {
     for (var i = 0; i < 20; i++) {
       this.arrContents[i] = new Array(20)
       for (var j = 0; j < 20; j++) {
-        this.arrContents[i][j] = 0
+        this.arrContents[i][j] = new Array(20)
+        for (var k = 0; k < 20; k++) {
+          this.arrContents[i][j][k] = 0
+        }
       }
     }
   }
@@ -130,9 +134,9 @@ var board = {
 
 function drawCursor () {
   if (cursorMode === 'draw') {
-    drawOutline((mouseLoc[0] + mouseLoc[1] + 1) * 20, 600 + (mouseLoc[0] - mouseLoc[1] + 1) * 10, 20, 20, 20, '#0f0', 'rgba(68, 170, 68, 0.5)')
+    drawOutline((mouseLoc[0] + mouseLoc[1] + 1) * 20, 600 + (mouseLoc[0] - mouseLoc[1] + 1 - 2 * elevation) * 10, 20, 20, 20, '#0f0', 'rgba(68, 170, 68, 0.5)')
   } else {
-    drawOutline((mouseLoc[0] + mouseLoc[1] + 1) * 20, 600 + (mouseLoc[0] - mouseLoc[1] + 1) * 10, 20, 20, 20, '#f00', 'rgba(170, 68, 68, 0.5)')
+    drawOutline((mouseLoc[0] + mouseLoc[1] + 1) * 20, 600 + (mouseLoc[0] - mouseLoc[1] + 1 - 2 * elevation) * 10, 20, 20, 20, '#f00', 'rgba(170, 68, 68, 0.5)')
   }
 }
 
@@ -145,36 +149,50 @@ function draw () {
   context.fillText('x: ' + mouseLoc[0].toString(), 25, 30)
   context.fillText('y: ' + mouseLoc[1].toString(), 25, 50)
 
-  for (var i = 0; i < 20; i++) {
-    for (var j = 19; j >= 0; j--) {
-      if (board.arrContents[i][j] === 1) {
-        drawCube((i + j + 1) * 20, 600 + (i - j + 1) * 10, 20, 20, 20, '#aaaaaa')
+  if (renderMode === 'draw') {
+    for (var y = 0; y <= elevation; y++) {
+      if (y === elevation) {
+        drawGrid(elevation)
       }
-      if (i === mouseLoc[0] && j === mouseLoc[1]) {
-        drawCursor()
+      for (var i = 0; i < 20; i++) {
+        for (var j = 19; j >= 0; j--) {
+          if (board.arrContents[i][j][y] === 1) {
+            drawCube((i + j + 1) * 20, 600 + (i - j + 1) * 10 - 20 * y, 20, 20, 20, '#aaaaaa')
+          }
+          if (y === elevation && i === mouseLoc[0] && j === mouseLoc[1]) {
+            drawCursor()
+          }
+        }
       }
     }
-  }
-  if (elevation > 0) {
-    drawGrid(elevation)
+  } else if (renderMode === 'view') {
+    for (var y = 0; y < 20; y++) {
+      for (var i = 0; i < 20; i++) {
+        for (var j = 19; j >= 0; j--) {
+          if (board.arrContents[i][j][y] === 1) {
+            drawCube((i + j + 1) * 20, 600 + (i - j + 1) * 10 - 20 * y, 20, 20, 20, '#aaaaaa')
+          }
+        }
+      }
+    }
   }
 }
 
 function setCursor (e) {
-  if (Math.floor((e.offsetX * 0.5 + e.offsetY) / 20) - 30 !== mouseLoc[0] ||
-      -(Math.floor((e.offsetY - e.offsetX * 0.5) / 20) - 29) !== mouseLoc[1]) {
-    mouseLoc[0] = Math.floor((e.offsetX * 0.5 + e.offsetY) / 20) - 30
-    mouseLoc[1] = -(Math.floor((e.offsetY - e.offsetX * 0.5) / 20) - 29)
+  if (Math.floor((e.offsetX * 0.5 + e.offsetY) / 20) - 30 - elevation !== mouseLoc[0] ||
+      -(Math.floor((e.offsetY - e.offsetX * 0.5) / 20) - 29) + elevation !== mouseLoc[1]) {
+    mouseLoc[0] = Math.floor((e.offsetX * 0.5 + e.offsetY) / 20) - 30 + elevation
+    mouseLoc[1] = -(Math.floor((e.offsetY - e.offsetX * 0.5) / 20) - 29 + elevation)
     draw()
   }
 }
 
 function handleClick () {
   if (cursorMode === 'draw') {
-    board.fill(mouseLoc[0], mouseLoc[1])
+    board.fill(mouseLoc[0], mouseLoc[1], elevation)
     draw()
   } else if (cursorMode === 'erase') {
-    board.erase(mouseLoc[0], mouseLoc[1])
+    board.erase(mouseLoc[0], mouseLoc[1], elevation)
     draw()
   }
 }
@@ -193,9 +211,17 @@ window.onkeyup = function (e) {
   } else if (key === 69) {
     cursorMode = 'erase'
     draw()
-  // d: draw
-  } else if (key === 68) {
+  // w: write
+  } else if (key === 87) {
     cursorMode = 'draw'
+    draw()
+  // s: set rendermode to showing
+  } else if (key === 83) {
+    renderMode = 'view'
+    draw()
+  // d: set rendermode to drawing
+  } else if (key === 68) {
+    renderMode = 'draw'
     draw()
   }
 }
