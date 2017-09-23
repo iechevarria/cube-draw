@@ -8,6 +8,7 @@ var cursorMode = 'draw'
 var renderMode = 'draw'
 var elevation = 0
 var renderAbove = true
+var mouseClicked = false
 
 var canvas = document.getElementById('canvas')
 var context = canvas.getContext('2d')
@@ -83,14 +84,12 @@ function drawOutline (x, y, wx, wy, h, color, fill) {
   context.stroke()
 }
 
-function drawShadow (x, y, fill) {
+function drawShadow (x, y) {
   context.moveTo(x, y)
   context.lineTo(x - 20, y - 10)
   context.lineTo(x, y - 20)
   context.lineTo(x + 20, y - 10)
   context.closePath()
-
-  context.fillStyle = fill
   context.fill()
 }
 
@@ -146,10 +145,11 @@ var board = {
 
 function drawCursor () {
   if (cursorMode === 'draw') {
-    drawOutline((mouseLoc[0] + mouseLoc[1] + 1) * 20, 600 + (mouseLoc[0] - mouseLoc[1] + 1 - 2 * elevation) * 10, 20, 20, 20, '#0f0', 'rgba(68, 170, 68, 0.5)')
+    drawOutline((mouseLoc[0] + mouseLoc[1] + 1) * 20, 600 + (mouseLoc[0] - mouseLoc[1] + 1 - 2 * elevation) * 10, 20, 20, 20, '#00f', 'rgba(100, 100, 200, 0.4)')
     drawShadow((mouseLoc[0] + mouseLoc[1] + 1) * 20, 600 + (mouseLoc[0] - mouseLoc[1] + 1) * 10)
   } else {
     drawOutline((mouseLoc[0] + mouseLoc[1] + 1) * 20, 600 + (mouseLoc[0] - mouseLoc[1] + 1 - 2 * elevation) * 10, 20, 20, 20, '#f00', 'rgba(170, 68, 68, 0.5)')
+    drawShadow((mouseLoc[0] + mouseLoc[1] + 1) * 20, 600 + (mouseLoc[0] - mouseLoc[1] + 1) * 10)
   }
 }
 
@@ -199,18 +199,30 @@ function setCursor (e) {
       -(Math.floor((e.offsetY - e.offsetX * 0.5) / 20) - 29) + elevation !== mouseLoc[1]) {
     mouseLoc[0] = Math.floor((e.offsetX * 0.5 + e.offsetY) / 20) - 30 + elevation
     mouseLoc[1] = -(Math.floor((e.offsetY - e.offsetX * 0.5) / 20) - 29 + elevation)
+
+    if (mouseClicked) {
+      if (cursorMode === 'draw') {
+        board.fill(mouseLoc[0], mouseLoc[1], elevation)
+      } else if (cursorMode === 'erase') {
+        board.erase(mouseLoc[0], mouseLoc[1], elevation)
+      }
+    }
     draw()
   }
 }
 
-function handleClick () {
+function handleMouseDown (e) {
+  mouseClicked = true
   if (cursorMode === 'draw') {
     board.fill(mouseLoc[0], mouseLoc[1], elevation)
-    draw()
   } else if (cursorMode === 'erase') {
     board.erase(mouseLoc[0], mouseLoc[1], elevation)
-    draw()
   }
+  draw()
+}
+
+function handleMouseUp () {
+  mouseClicked = false
 }
 
 window.onkeyup = function (e) {
@@ -244,5 +256,7 @@ window.onkeyup = function (e) {
 
 board.reset()
 canvas.addEventListener('mousemove', setCursor)
-canvas.addEventListener('mousedown', handleClick)
+canvas.addEventListener('mousedown', handleMouseDown)
+canvas.addEventListener('mouseup', handleMouseUp)
+
 draw()
