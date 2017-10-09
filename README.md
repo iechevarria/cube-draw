@@ -1,5 +1,5 @@
 # cube-draw
-Voxel drawing implemented in JavaScript - check it out at <a href='http://echevarria.io/projects/cube-draw/'>echevarria.io</a>.
+Voxel drawing implemented in JavaScript - check it out at <a href='http://echevarria.io/code/cube-draw/'>echevarria.io</a>.
 
 ## Controls
 <ul>
