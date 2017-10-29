@@ -1,7 +1,10 @@
 # cube-draw
-Voxel drawing implemented in JavaScript - check it out at <a href='http://echevarria.io/code/cube-draw/'>echevarria.io</a>.
+Voxel drawing implemented in JavaScript - check it out at <a href='http://echevarria.io/code/cube-draw/'>echevarria.io</a>. 
+
+![](screenshot.png)
 
 ## Controls
+
 <ul>
   <li><code>Click</code> to set voxel</li>
   <li>Press <code>up</code> to move the drawing plane up</li>
