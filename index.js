@@ -24,6 +24,10 @@ var board = {
     this.arrContents[i][j][k] = 0;
   },
 
+  getVoxel: function (i, j, k) {
+    return this.arrContents[i][j][k];
+  },
+
   reset: function () {
     for (var i = 0; i < 20; i++) {
       this.arrContents[i] = new Array(20);
@@ -34,7 +38,9 @@ var board = {
         }
       }
     }
-  }
+  },
+
+  rotate: function () {}
 };
 
 function drawCube (x, y, stroke, lColor, rColor, tColor) {
@@ -163,9 +169,9 @@ function draw () {
       }
       for (var i = 0; i < 20; i++) {
         for (var j = 19; j >= 0; j--) {
-          if (board.arrContents[i][j][k] === 1 && k <= elevation) {
+          if (board.getVoxel(i, j, k) === 1 && k <= elevation) {
             drawCube((i + j + 1) * 20, 600 + (i - j + 1) * 10 - 20 * k, '#fff', '#aaa', '#ccc', '#ddd');
-          } else if (board.arrContents[i][j][k] === 1 && k > elevation && renderAbove === true) {
+          } else if (board.getVoxel(i, j, k) === 1 && k > elevation && renderAbove === true) {
             drawOutline((i + j + 1) * 20, 600 + (i - j + 1 - 2 * k) * 10, '#aaa', 'rgba(170, 170, 170, 0.5)');
           }
           if (k === elevation && i === mouseLoc[0] && j === mouseLoc[1]) {
@@ -178,7 +184,7 @@ function draw () {
     for (var k = 0; k < 20; k++) {
       for (var i = 0; i < 20; i++) {
         for (var j = 19; j >= 0; j--) {
-          if (board.arrContents[i][j][k] === 1) {
+          if (board.getVoxel(i, j, k) === 1) {
             drawCube((i + j + 1) * 20, 600 + (i - j + 1) * 10 - 20 * k, '#fff', '#aaa', '#ccc', '#ddd');
           }
         }
@@ -245,7 +251,12 @@ window.onkeyup = function (e) {
       renderMode = 'view';
     }
     draw();
+  // r: rotate 90 degrees
+  } else if (key === 82) {
+    board.rotate();
+    draw();
   }
+  
 };
 
 board.reset();
